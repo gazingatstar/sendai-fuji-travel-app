@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#edf4f3" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>仙台・河口湖旅遊小工具</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <style>
+    :root{
+      --bg:#f7f7f3;--surface:#ffffff;--text:#1e293b;--muted:#64748b;--line:#e5e7eb;
+      --primary:#7ca6a1;--blue:#dfeefb;--orange:#f8e7cf;--purple:#ece6fb;--green:#e5f2e7;--red:#fae1e1;--yellow:#f5f0d7;
+      --shadow:0 10px 25px rgba(15,23,42,.06);--radius:22px;
+      --safe-bottom:max(18px, env(safe-area-inset-bottom));
+    }
+    *{box-sizing:border-box} html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif}
+    body{max-width:430px;margin:0 auto;min-height:100vh}
+    .app{padding:18px 16px calc(84px + var(--safe-bottom));}
+    .topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin:6px 0 16px}
+    .title{font-size:28px;font-weight:800;letter-spacing:.2px}
+    .sub{color:var(--muted);font-size:14px;margin-top:6px}
+    .chiprow{display:flex;gap:8px;overflow:auto;padding-bottom:6px;margin:10px 0 16px}
+    .chip{padding:10px 14px;border-radius:999px;background:#fff;border:1px solid var(--line);font-size:13px;white-space:nowrap}
+    .chip.active{background:var(--text);color:#fff;border-color:var(--text)}
+    .card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:14px;border:1px solid rgba(0,0,0,.03)}
+    .hero{background:linear-gradient(180deg,#eef7f6 0%,#fff 100%)}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .kicker{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em}
+    .big{font-size:22px;font-weight:800}
+    .weather{display:flex;align-items:center;gap:10px;background:var(--blue);border-radius:18px;padding:12px 14px;margin-top:12px}
+    .icon{width:36px;height:36px;border-radius:12px;background:rgba(255,255,255,.7);display:flex;align-items:center;justify-content:center;font-size:20px}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .quick{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+    .quick button,.action,.ghost{border:none;background:#fff;border-radius:18px;padding:12px 10px;box-shadow:var(--shadow);font:inherit;color:var(--text)}
+    .quick button{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px}
+    .section-title{font-size:18px;font-weight:800;margin:8px 0 12px}
+    .timeline{display:flex;flex-direction:column;gap:12px}
+    .item{display:grid;grid-template-columns:52px 1fr;gap:12px;align-items:start}
+    .time{font-size:13px;color:var(--muted);padding-top:8px}
+    .mini{padding:14px;border-radius:20px;border:1px solid rgba(0,0,0,.04)}
+    .spot{background:var(--blue)} .food{background:var(--orange)} .transport{background:#eef3f8} .hotel{background:var(--purple)} .guide{background:var(--yellow)} .alert{background:var(--green)} .danger{background:var(--red)}
+    .mini h4{margin:0 0 6px;font-size:16px} .mini p{margin:0;color:#334155;line-height:1.45;font-size:14px}
+    .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+    .tag{font-size:12px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.7);font-weight:700}
+    .btnrow{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+    .action{background:rgba(255,255,255,.82);padding:10px 12px;border:1px solid rgba(0,0,0,.06);font-size:13px}
+    .hidden{display:none!important}
+    .nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(430px,100vw);background:rgba(255,255,255,.92);backdrop-filter:blur(18px);border-top:1px solid var(--line);padding:10px 14px calc(10px + var(--safe-bottom));display:grid;grid-template-columns:repeat(5,1fr);z-index:20}
+    .nav button{border:none;background:transparent;font:inherit;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11px;padding:4px}
+    .nav button.active{color:var(--text);font-weight:700}
+    .small{font-size:12px;color:var(--muted)}
+    .list{display:flex;flex-direction:column;gap:10px}
+    .kv{display:flex;justify-content:space-between;gap:14px;padding:8px 0;border-bottom:1px dashed var(--line)}
+    .kv:last-child{border-bottom:none}
+    .input, select{width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#fff;font:inherit}
+    .formgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .primary{background:var(--text)!important;color:#fff!important}
+    .budget-total{font-size:28px;font-weight:800}
+    .notice{font-size:12px;color:var(--muted);line-height:1.5}
+    a{text-decoration:none;color:inherit}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section id="view-home"></section>
+    <section id="view-itinerary" class="hidden"></section>
+    <section id="view-bookings" class="hidden"></section>
+    <section id="view-budget" class="hidden"></section>
+    <section id="view-more" class="hidden"></section>
+  </div>
+
+  <nav class="nav">
+    <button data-tab="home" class="active"><span>🏠</span><span>首頁</span></button>
+    <button data-tab="itinerary"><span>🗓️</span><span>行程</span></button>
+    <button data-tab="bookings"><span>🎟️</span><span>預訂</span></button>
+    <button data-tab="budget"><span>💴</span><span>記帳</span></button>
+    <button data-tab="more"><span>⋯</span><span>更多</span></button>
+  </nav>
+
+<script>
+const trip = {
+  title:'仙台・河口湖旅遊小工具',
+  range:'2026/4/3 – 4/11',
+  flights:[
+    {type:'去程', no:'UO628', from:'香港國際機場 T1', fromTime:'2026-04-03T20:00:00+08:00', to:'羽田機場 T3', toTime:'2026-04-04T01:20:00+09:00', bookingCode:'O74NNP'},
+    {type:'回程', no:'UO857', from:'成田國際機場 T2', fromTime:'2026-04-11T08:00:00+09:00', to:'香港國際機場 T1', toTime:'2026-04-11T11:55:00+08:00', bookingCode:'K7683M / WBBFPT'}
+  ],
+  hotels:[
+    {name:'Super Hotel Sendai Hirose Dori', city:'仙台', checkIn:'2026-04-04 15:00', checkOut:'2026-04-07 10:00', note:'已確認'},
+    {name:'La Vista Fuji Kawaguchiko', city:'富士河口湖', checkIn:'2026-04-07 15:00', checkOut:'2026-04-08 11:00', note:'已確認'},
+    {name:'美富士園酒店 / Hotel Mifujien', city:'富士河口湖町', checkIn:'2026-04-08 15:00', checkOut:'2026-04-09 10:00', note:'日式8榻榻米帶浴缸，1間房'},
+    {name:'International Garden Hotel Narita', city:'成田', checkIn:'2026-04-09 15:00', checkOut:'2026-04-11 11:00', note:'已確認'}
+  ],
+  days:[
+    {
+      date:'4/3（五）', city:'香港 → 東京', theme:'飛行日', weather:{icon:'✈️', text:'飛行日', temp:'', rain:''},
+      cards:[
+        {time:'17:00', type:'alert', title:'前往香港機場', body:'建議至少提前 3 小時到機場，先完成行李與證件檢查。', tags:['護照','eSIM','充電器']},
+        {time:'20:00', type:'transport', title:'UO628 去程航班', body:'香港國際機場 T1 → 羽田機場 T3，預計 01:20 +1 抵達。', tags:['重要預約代號 O74NNP']},
+        {time:'23:00', type:'guide', title:'今晚重點', body:'以順利抵達為優先，不安排其他活動。到日本後先休息，隔天再慢慢移動去仙台。', tags:['勿排太滿']}
+      ]
+    },
+    {
+      date:'4/4（六）', city:'仙台', theme:'移動 + 市區散步 + 牛舌', weather:{icon:'⛅', text:'仙台', temp:'11–17°C', rain:'20%'},
+      cards:[
+        {time:'上午', type:'transport', title:'東京 / 羽田 → 仙台', body:'今天以順利移動到仙台為主。建議用新幹線，抵達後先到酒店寄存或入住。', tags:['重要交通日']},
+        {time:'15:00', type:'hotel', title:'入住 Super Hotel Sendai Hirose Dori', body:'先放行李、小休，傍晚開始慢行程。', place:'Super Hotel Sendai Hirose Dori'},
+        {time:'17:00', type:'spot', title:'仙台站周邊散步', body:'一番町、中央通商店街很適合輕鬆開始，不趕景點。', place:'仙台站'},
+        {time:'19:00', type:'food', title:'牛舌晚餐', body:'今天主題就是吃仙台代表美食。', tags:['必吃美食','必點：炭燒牛舌定食','必點：牛尾湯'], place:'仙台站周邊'}
+      ]
+    },
+    {
+      date:'4/5（日）', city:'仙台', theme:'文化散步日', weather:{icon:'🌤️', text:'仙台', temp:'10–18°C', rain:'15%'},
+      cards:[
+        {time:'08:30', type:'food', title:'仙台朝市早餐 / 早午餐', body:'海鮮丼、烤魚、熟食都很適合。', tags:['必吃美食'], place:'仙台朝市'},
+        {time:'10:30', type:'spot', title:'瑞鳳殿', body:'適合安排 60–90 分鐘，節奏穩。', place:'瑞鳳殿'},
+        {time:'14:00', type:'spot', title:'仙台城跡', body:'下午視野較舒服，可看城市景觀。', place:'仙台城跡'},
+        {time:'18:30', type:'guide', title:'今晚補完', body:'可選居酒屋、海鮮或再吃一次牛舌；甜品可留意毛豆甜點。', tags:['必買伴手禮：毛豆甜點']}
+      ]
+    },
+    {
+      date:'4/6（一）', city:'仙台', theme:'神社 + 咖啡 + 最後採買', weather:{icon:'☁️', text:'仙台', temp:'9–16°C', rain:'30%'},
+      cards:[
+        {time:'10:00', type:'spot', title:'大崎八幡宮', body:'不需要太急，適合慢慢走。', place:'大崎八幡宮'},
+        {time:'13:00', type:'food', title:'定食 / 蕎麥午餐', body:'今天以舒服、穩陣為主。', place:'仙台市區'},
+        {time:'16:00', type:'guide', title:'伴手禮採買', body:'今天買不易壞的手信最合適。', tags:['必買伴手禮','毛豆系甜點','仙台零食']},
+        {time:'21:00', type:'alert', title:'整理行李', body:'明天是仙台 → 河口湖大移動，今晚早點休息。', tags:['重要提醒']}
+      ]
+    },
+    {
+      date:'4/7（二）', city:'仙台 → 富士河口湖', theme:'移動日 + 溫泉景觀', weather:{icon:'🗻', text:'河口湖', temp:'7–15°C', rain:'25%'},
+      cards:[
+        {time:'10:00', type:'transport', title:'仙台退房', body:'退房後前往東京轉車，今天以順利抵達河口湖為最優先。', place:'Super Hotel Sendai Hirose Dori'},
+        {time:'15:00', type:'hotel', title:'入住 La Vista Fuji Kawaguchiko', body:'盡量保留酒店時光，泡湯、看景最值。', place:'La Vista Fuji Kawaguchiko'},
+        {time:'傍晚', type:'spot', title:'飯店觀景 / 富士山 sunset', body:'若天氣好，先把山景看夠。', place:'河口湖'},
+        {time:'晚上', type:'guide', title:'今晚策略', body:'不要再硬塞景點，今天就是溫泉 + 景色 + 放鬆。', tags:['必做：泡湯','最佳拍照：黃昏']}
+      ]
+    },
+    {
+      date:'4/8（三）', city:'富士河口湖', theme:'經典湖景日', weather:{icon:'🌤️', text:'河口湖', temp:'8–16°C', rain:'10%'},
+      cards:[
+        {time:'09:00', type:'spot', title:'河口湖湖畔散步 / 大石公園', body:'早上光線舒服，適合看山與散步。', place:'大石公園'},
+        {time:'11:00', type:'spot', title:'河口湖纜車', body:'熱門點，宜早去。', tags:['熱門景點'], place:'河口湖纜車'},
+        {time:'13:00', type:'food', title:'山梨名物午餐', body:'推薦吃ほうとう。', tags:['必吃美食','必點：ほうとう'], place:'河口湖周邊'},
+        {time:'15:00', type:'hotel', title:'入住 美富士園酒店', body:'換酒店後休息，晚上可再泡湯。', place:'Hotel Mifujien'},
+        {time:'17:00', type:'guide', title:'今日補完', body:'富士山小物、山梨果物甜點都很值得買。', tags:['必買伴手禮']}
+      ]
+    },
+    {
+      date:'4/9（四）', city:'河口湖 → 成田', theme:'長移動 + 成田緩衝', weather:{icon:'🚆', text:'成田', temp:'10–18°C', rain:'20%'},
+      cards:[
+        {time:'上午', type:'transport', title:'河口湖 → 成田', body:'今天是重要交通日，不建議再插入太多東京景點。', tags:['重要交通日']},
+        {time:'15:00', type:'hotel', title:'入住 International Garden Hotel Narita', body:'先安頓，接下來兩晚以穩陣為主。', place:'International Garden Hotel Narita'},
+        {time:'17:00', type:'spot', title:'成田表參道散步', body:'很適合作為回程前的慢行程。', place:'成田表參道'},
+        {time:'18:30', type:'spot', title:'成田山新勝寺', body:'慢慢走就好，不用趕。', place:'成田山新勝寺'}
+      ]
+    },
+    {
+      date:'4/10（五）', city:'成田', theme:'最後購物 + 低壓日', weather:{icon:'☀️', text:'成田', temp:'11–19°C', rain:'15%'},
+      cards:[
+        {time:'10:00', type:'spot', title:'成田山新勝寺 / 表參道完整散步', body:'最後一天以低壓行程為主。', place:'成田山新勝寺'},
+        {time:'12:30', type:'food', title:'鰻魚飯午餐', body:'成田很適合把最後一餐吃好一點。', tags:['必吃美食','必點：鰻魚飯'], place:'成田表參道'},
+        {time:'16:00', type:'guide', title:'手信補完', body:'常溫伴手禮、零食、藥妝可以在今天最後補齊。', tags:['必買伴手禮補完日']},
+        {time:'21:00', type:'alert', title:'回程前檢查', body:'設定鬧鐘、確認機場交通、護照與液體整理好。', tags:['重要提醒']}
+      ]
+    },
+    {
+      date:'4/11（六）', city:'成田 → 香港', theme:'回程日', weather:{icon:'🛫', text:'回程', temp:'', rain:''},
+      cards:[
+        {time:'05:00', type:'alert', title:'起床 / 前往機場', body:'今天唯一重點是穩穩出發。若酒店有 shuttle，務必前一晚確認班次。', tags:['早機','提早出發']},
+        {time:'08:00', type:'transport', title:'UO857 回程航班', body:'成田國際機場 T2 → 香港國際機場 T1，11:55 抵達。', tags:['重要預約代號 K7683M / WBBFPT']}
+      ]
+    }
+  ],
+  emergency:[
+    ['日本報警','110'],['日本救護 / 消防','119'],['香港駐日本大使館 / 經貿處','出發前補入'],['信用卡掛失','按你的發卡銀行填寫'],['旅遊保險','按你的保單填寫']
+  ]
+};
+
+const places = {
+  'Super Hotel Sendai Hirose Dori':'https://www.google.com/maps/search/?api=1&query=Super+Hotel+Sendai+Hirose+Dori',
+  '仙台站':'https://www.google.com/maps/search/?api=1&query=%E4%BB%99%E5%8F%B0%E7%AB%99',
+  '仙台朝市':'https://www.google.com/maps/search/?api=1&query=%E4%BB%99%E5%8F%B0%E6%9C%9D%E5%B8%82',
+  '瑞鳳殿':'https://www.google.com/maps/search/?api=1&query=Zuihoden',
+  '仙台城跡':'https://www.google.com/maps/search/?api=1&query=Sendai+Castle+Ruins',
+  '大崎八幡宮':'https://www.google.com/maps/search/?api=1&query=Osaki+Hachimangu',
+  'La Vista Fuji Kawaguchiko':'https://www.google.com/maps/search/?api=1&query=La+Vista+Fuji+Kawaguchiko',
+  '大石公園':'https://www.google.com/maps/search/?api=1&query=Oishi+Park+Kawaguchiko',
+  '河口湖纜車':'https://www.google.com/maps/search/?api=1&query=Mt.+Fuji+Panoramic+Ropeway',
+  'Hotel Mifujien':'https://www.google.com/maps/search/?api=1&query=Hotel+Mifujien',
+  'International Garden Hotel Narita':'https://www.google.com/maps/search/?api=1&query=International+Garden+Hotel+Narita',
+  '成田表參道':'https://www.google.com/maps/search/?api=1&query=Naritasan+Omotesando',
+  '成田山新勝寺':'https://www.google.com/maps/search/?api=1&query=Naritasan+Shinshoji+Temple',
+  '河口湖周邊':'https://www.google.com/maps/search/?api=1&query=Kawaguchiko',
+  '仙台市區':'https://www.google.com/maps/search/?api=1&query=Sendai'
+};
+
+const fmtMoney = n => new Intl.NumberFormat('zh-Hant-HK',{style:'currency',currency:'JPY',maximumFractionDigits:0}).format(n||0);
+const getBudget = ()=> JSON.parse(localStorage.getItem('travelBudget')||'[]');
+const setBudget = data => localStorage.setItem('travelBudget', JSON.stringify(data));
+
+function cardClass(type){ return {spot:'spot',food:'food',transport:'transport',hotel:'hotel',guide:'guide',alert:'alert',danger:'danger'}[type] || 'guide'; }
+function navBtn(place){ if(!place || !places[place]) return ''; return `<a class="action" href="${places[place]}" target="_blank" rel="noopener">🧭 導航</a>`; }
+function copyBtn(text){ return `<button class="action" onclick="navigator.clipboard.writeText('${(text||'').replace(/'/g,"\\'")}')">📋 複製</button>`; }
+
+function renderHome(){
+  const today = trip.days[1];
+  document.getElementById('view-home').innerHTML = `
+    <div class="topbar">
+      <div><div class="title">仙台・河口湖</div><div class="sub">${trip.range} ・ 可安裝到主畫面</div></div>
+      <button class="ghost" onclick="alert('這是離線優先版本。天氣為示意資料，可日後改接 API。')">ℹ️</button>
+    </div>
+    <div class="card hero">
+      <div class="kicker">Today</div>
+      <div class="big">${today.date}・${today.city}</div>
+      <div class="sub">${today.theme}</div>
+      <div class="weather">
+        <div class="icon">${today.weather.icon}</div>
+        <div><div><strong>${today.weather.text}</strong> ${today.weather.temp ? '・ ' + today.weather.temp : ''}</div><div class="small">降雨機率 ${today.weather.rain || '—'}</div></div>
+      </div>
+      <div class="quick">
+        <button onclick="switchTab('itinerary')"><span>🗓️</span><span>今日行程</span></button>
+        <button onclick="switchTab('bookings')"><span>🎟️</span><span>預訂</span></button>
+        <button onclick="switchTab('budget')"><span>💴</span><span>記帳</span></button>
+        <button onclick="switchTab('more')"><span>☎️</span><span>緊急</span></button>
+      </div>
+    </div>
+    <div class="section-title">下一個重點</div>
+    <div class="card ${cardClass(today.cards[0].type)}">
+      <div class="row"><div><div class="small">${today.cards[0].time}</div><h3 style="margin:4px 0 6px">${today.cards[0].title}</h3></div></div>
+      <p>${today.cards[0].body}</p>
+      <div class="btnrow">${navBtn(today.cards[0].place)||''}</div>
+    </div>
+    <div class="section-title">旅程摘要</div>
+    <div class="grid2">
+      <div class="card"><div class="small">住宿</div><div class="big">${trip.hotels.length}</div><div class="sub">已整合全部預訂</div></div>
+      <div class="card"><div class="small">航班</div><div class="big">${trip.flights.length}</div><div class="sub">去程 + 回程</div></div>
+    </div>
+    <div class="section-title">快速筆記</div>
+    <div class="card"><div class="notice">這個版本已包含：每日行程、導航按鈕、預訂、緊急聯絡、離線記帳。<br>未包含：即時天氣 API、Firebase 同步、動態餐廳搜尋。</div></div>
+  `;
+}
+
+function renderItinerary(selected=1){
+  const day = trip.days[selected];
+  document.getElementById('view-itinerary').innerHTML = `
+    <div class="topbar">
+      <div><div class="title">每日行程</div><div class="sub">手機優先時間線</div></div>
+    </div>
+    <div class="chiprow">${trip.days.map((d,i)=>`<button class="chip ${i===selected?'active':''}" onclick="renderItinerary(${i})">${d.date}</button>`).join('')}</div>
+    <div class="card hero">
+      <div class="row"><div><div class="big">${day.city}</div><div class="sub">${day.theme}</div></div></div>
+      <div class="weather"><div class="icon">${day.weather.icon}</div><div><div><strong>${day.weather.text}</strong> ${day.weather.temp ? '・ ' + day.weather.temp : ''}</div><div class="small">降雨機率 ${day.weather.rain || '—'}</div></div></div>
+    </div>
+    <div class="timeline">
+      ${day.cards.map(c=>`
+        <div class="item">
+          <div class="time">${c.time}</div>
+          <div class="mini ${cardClass(c.type)}">
+            <h4>${c.title}</h4>
+            ${c.place ? `<div class="small" style="margin-bottom:6px">📍 ${c.place}</div>`:''}
+            <p>${c.body}</p>
+            ${c.tags ? `<div class="tags">${c.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>`:''}
+            <div class="btnrow">${navBtn(c.place)}${c.place?copyBtn(c.place):''}</div>
+          </div>
+        </div>`).join('')}
+    </div>`;
+}
+
+function renderBookings(){
+  document.getElementById('view-bookings').innerHTML = `
+    <div class="topbar"><div><div class="title">預訂資料</div><div class="sub">航班、住宿、預約代號</div></div></div>
+    <div class="section-title">航班</div>
+    ${trip.flights.map(f=>`
+      <div class="card ${f.type==='去程'?'transport':'transport'}">
+        <div class="row"><div><div class="small">${f.type}</div><div class="big">${f.no}</div></div><div class="tag">${f.bookingCode}</div></div>
+        <div class="kv"><span>${f.from}</span><strong>${new Date(f.fromTime).toLocaleTimeString('zh-HK',{hour:'2-digit',minute:'2-digit',hour12:false})}</strong></div>
+        <div class="kv"><span>${f.to}</span><strong>${new Date(f.toTime).toLocaleTimeString('zh-HK',{hour:'2-digit',minute:'2-digit',hour12:false})}</strong></div>
+        <div class="btnrow">${copyBtn(f.bookingCode)}</div>
+      </div>`).join('')}
+    <div class="section-title">住宿</div>
+    ${trip.hotels.map(h=>`
+      <div class="card hotel">
+        <h3 style="margin:0 0 6px">${h.name}</h3>
+        <div class="small">📍 ${h.city}</div>
+        <div class="kv"><span>入住</span><strong>${h.checkIn}</strong></div>
+        <div class="kv"><span>退房</span><strong>${h.checkOut}</strong></div>
+        <div class="small">${h.note||''}</div>
+        <div class="btnrow">${navBtn(h.name)}${copyBtn(h.name)}</div>
+      </div>`).join('')}
+  `;
+}
+
+function renderBudget(){
+  const entries = getBudget();
+  const total = entries.reduce((a,b)=>a+Number(b.amount||0),0);
+  document.getElementById('view-budget').innerHTML = `
+    <div class="topbar"><div><div class="title">記帳 / 預算</div><div class="sub">離線儲存於此裝置</div></div></div>
+    <div class="card hero"><div class="small">目前總開支</div><div class="budget-total">${fmtMoney(total)}</div><div class="notice">這是離線版，資料會儲存在你的瀏覽器 localStorage。之後可改成 Firebase 同步。</div></div>
+    <div class="card">
+      <div class="section-title" style="margin-top:0">新增支出</div>
+      <div class="formgrid">
+        <input id="b-date" class="input" type="date" value="2026-04-04" />
+        <select id="b-cat"><option>交通</option><option>飲食</option><option>購物</option><option>住宿</option><option>門票</option><option>其他</option></select>
+      </div>
+      <div class="formgrid" style="margin-top:10px">
+        <input id="b-amount" class="input" type="number" placeholder="金額 JPY" />
+        <input id="b-note" class="input" placeholder="備註" />
+      </div>
+      <div class="btnrow"><button class="action primary" onclick="addBudget()">＋ 新增</button><button class="action" onclick="clearBudget()">清空資料</button></div>
+    </div>
+    <div class="section-title">支出列表</div>
+    <div class="list">
+      ${entries.length? entries.slice().reverse().map((e,idx)=>`<div class="card"><div class="row"><strong>${e.category}</strong><strong>${fmtMoney(Number(e.amount))}</strong></div><div class="small">${e.date} ・ ${e.note||'—'}</div></div>`).join('') : `<div class="card"><div class="small">還未有支出。你可以直接在旅途中新增。</div></div>`}
+    </div>
+  `;
+}
+
+function addBudget(){
+  const date=document.getElementById('b-date').value;
+  const category=document.getElementById('b-cat').value;
+  const amount=document.getElementById('b-amount').value;
+  const note=document.getElementById('b-note').value;
+  if(!amount){ alert('請輸入金額'); return; }
+  const data=getBudget();
+  data.push({date,category,amount:Number(amount),note});
+  setBudget(data); renderBudget();
+}
+function clearBudget(){ if(confirm('確定清空所有記帳資料？')){ localStorage.removeItem('travelBudget'); renderBudget(); } }
+
+function renderMore(){
+  document.getElementById('view-more').innerHTML = `
+    <div class="topbar"><div><div class="title">更多工具</div><div class="sub">緊急聯絡、部署、說明</div></div></div>
+    <div class="section-title">緊急聯絡</div>
+    <div class="card danger">${trip.emergency.map(e=>`<div class="kv"><span>${e[0]}</span><strong>${e[1]}</strong></div>`).join('')}</div>
+    <div class="section-title">常用提醒</div>
+    <div class="card guide">
+      <div class="tags"><span class="tag">必吃美食</span><span class="tag">必買伴手禮</span><span class="tag">重要預約代號</span><span class="tag">交通提醒</span></div>
+      <p style="margin-top:10px">這個 App 已內建你的預訂與完整日程。若要上線成正式 PWA，直接把整個資料夾丟上 GitHub，再部署到 Vercel / Netlify / Kinsta 靜態站都可以。</p>
+    </div>
+    <div class="section-title">部署說明</div>
+    <div class="card"><div class="notice">1. 上傳本資料夾到 GitHub。<br>2. 用 Vercel / Netlify 連 repo。<br>3. 這版是純靜態 PWA，不需要資料庫。<br>4. 若你之後想把記帳跨裝置同步，再接 Firebase。</div></div>
+  `;
+}
+
+function switchTab(tab){
+  ['home','itinerary','bookings','budget','more'].forEach(id=>{
+    document.getElementById('view-'+id).classList.toggle('hidden', id!==tab);
+    document.querySelector(`[data-tab="${id}"]`).classList.toggle('active', id===tab);
+  });
+  if(tab==='itinerary') renderItinerary(1);
+  if(tab==='bookings') renderBookings();
+  if(tab==='budget') renderBudget();
+  if(tab==='more') renderMore();
+}
+
+document.querySelectorAll('.nav button').forEach(btn=>btn.addEventListener('click',()=>switchTab(btn.dataset.tab)));
+renderHome(); renderItinerary(1); renderBookings(); renderBudget(); renderMore();
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));}
+  </script>
+</body>
+</html>
