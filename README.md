@@ -1,0 +1,1 @@
+# sendai-fuji-travel-app
